@@ -14,6 +14,7 @@
 """
 __author__ = 'JHao'
 
+from helper.proxy import Region
 from util.six import Empty
 from threading import Thread
 from datetime import datetime
@@ -50,7 +51,8 @@ class DoValidator(object):
                 proxy.fail_count -= 1
             proxy.https = True if https_r else False
             if work_type == "raw":
-                proxy.region = cls.regionGetter(proxy) if cls.conf.proxyRegion else ""
+                nation, nation_code, province, city = cls.regionGetter(proxy)
+                proxy.region = Region(nation=nation, nation_code=nation_code, province=province, city=city)
         else:
             proxy.fail_count += 1
         return proxy
@@ -79,9 +81,12 @@ class DoValidator(object):
     @classmethod
     def regionGetter(cls, proxy):
         try:
-            url = 'https://searchplugin.csdn.net/api/v1/ip/get?ip=%s' % proxy.proxy.split(':')[0]
+            url = 'https://webapi-pc.meitu.com/common/ip_location?ip=%s' % proxy.proxy.split(':')[0]
             r = WebRequest().get(url=url, retry_time=1, timeout=2).json
-            return r['data']['address']
+            ip_address = list(r['data'].keys())[0]
+            location_data = r['data'][ip_address]
+            return location_data['nation'], location_data['nation_code'], location_data['province'], location_data[
+                'city'],
         except:
             return 'error'
 

@@ -19,7 +19,7 @@ __author__ = 'JHao'
 import platform
 from werkzeug.wrappers import Response
 from flask import Flask, jsonify, request
-
+from random import choice
 from util.six import iteritems
 from helper.proxy import Proxy
 from handler.proxyHandler import ProxyHandler
@@ -42,7 +42,11 @@ class JsonResponse(Response):
 app.response_class = JsonResponse
 
 api_list = [
-    {"url": "/get", "params": "type: ''https'|''", "desc": "get a proxy"},
+    {"url": "/get", "params": "type: ''https'|'' "
+                              "nation: '中国|美国等 多个使用$分隔  ' "
+                              "nation_code: 'CN|US等 多个使用$分隔'  "
+                              "province: '省份等 多个使用$分隔'  "
+                              "city" '城市等 多个使用$分隔', "desc": "get a proxy"},
     {"url": "/pop", "params": "", "desc": "get and delete a proxy"},
     {"url": "/delete", "params": "proxy: 'e.g. 127.0.0.1:8080'", "desc": "delete an unable proxy"},
     {"url": "/all", "params": "type: ''https'|''", "desc": "get all proxy from proxy pool"},
@@ -58,9 +62,25 @@ def index():
 
 @app.route('/get/')
 def get():
-    https = request.args.get("type", "").lower() == 'https'
-    proxy = proxy_handler.get(https)
+    https = request.args.get("type", "").lower()
+    nations = request.args.get("nation", "").upper().split('$')
+    nation_codes = request.args.get("nation_code", "").upper().split('$')
+    provinces = request.args.get("province", "").split('$')
+    cities = request.args.get("city", "").split('$')
+    proxys = proxy_handler.getAll(https)
+
+    # 使用列表推导式进行筛选
+    filtered_proxies = [
+        proxy for proxy in proxys
+        if (not nations or proxy.region.nation in nations) or
+           (not nation_codes or proxy.region.nation_code in nation_codes) or
+           (not provinces or proxy.region.province in provinces) or
+           (not cities or proxy.region.city in cities)
+    ]
+
+    proxy = choice(filtered_proxies) if filtered_proxies else None
     return proxy.to_dict if proxy else {"code": 0, "src": "no proxy"}
+    # return proxy.to_dict if proxy else {"code": 0, "src": "no proxy"}
 
 
 @app.route('/pop/')

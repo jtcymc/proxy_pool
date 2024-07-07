@@ -15,10 +15,33 @@ __author__ = 'JHao'
 import json
 
 
+class Region:
+    def __init__(self, nation="", nation_code="", province="", city=""):
+        self.nation = nation
+        self.nation_code = nation_code
+        self.province = province
+        self.city = city
+    @property
+    def to_dict(self):
+        """ 返回Region对象的字典表示 """
+        return {
+            "nation": self.nation,
+            "nation_code": self.nation_code,
+            "province": self.province,
+            "city": self.city
+        }
+
+
 class Proxy(object):
 
-    def __init__(self, proxy, fail_count=0, region="", anonymous="",
+    def __init__(self, proxy, fail_count=0, region=None, anonymous="",
                  source="", check_count=0, last_status="", last_time="", https=False):
+        if region is None:
+            region = {}  # 默认情况下，region可能是一个空字典
+
+        # 将字典转换为Region对象，如果region已经是Region对象，则保持不变
+        if isinstance(region, dict):
+            region = Region(**region)
         self._proxy = proxy
         self._fail_count = fail_count
         self._region = region
@@ -32,9 +55,17 @@ class Proxy(object):
     @classmethod
     def createFromJson(cls, proxy_json):
         _dict = json.loads(proxy_json)
+        # Extract the region dictionary
+        region_dict = _dict.get("region", {})
+
+        # Create a Region object from the extracted dictionary
+        region = Region(nation=region_dict.get("nation", ""),
+                        nation_code=region_dict.get("nation_code", ""),
+                        province=region_dict.get("province", ""),
+                        city=region_dict.get("city", ""))
         return cls(proxy=_dict.get("proxy", ""),
                    fail_count=_dict.get("fail_count", 0),
-                   region=_dict.get("region", ""),
+                   region=region,
                    anonymous=_dict.get("anonymous", ""),
                    source=_dict.get("source", ""),
                    check_count=_dict.get("check_count", 0),
@@ -94,7 +125,7 @@ class Proxy(object):
         return {"proxy": self.proxy,
                 "https": self.https,
                 "fail_count": self.fail_count,
-                "region": self.region,
+                "region": self.region.to_dict,
                 "anonymous": self.anonymous,
                 "source": self.source,
                 "check_count": self.check_count,
