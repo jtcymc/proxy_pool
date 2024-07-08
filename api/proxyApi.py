@@ -42,11 +42,12 @@ class JsonResponse(Response):
 app.response_class = JsonResponse
 
 api_list = [
-    {"url": "/get", "params": "type: ''https'|'' "
-                              "nation: '中国|美国等 多个使用$分隔  ' "
-                              "nation_code: 'CN|US等 多个使用$分隔'  "
-                              "province: '省份等 多个使用$分隔'  "
-                              "city" '城市等 多个使用$分隔', "desc": "get a proxy"},
+    {"url": "/get", "params": "type: ''https'|'' ", "desc": "get a proxy"},
+    {"url": "/get_cn", "params": "type: ''https'|'' "
+                                 "nation: '中国|美国等 多个使用$分隔  ' "
+                                 "nation_code: 'CN|US等 多个使用$分隔'  "
+                                 "province: '省份等 多个使用$分隔'  "
+                                 "city" '城市等 多个使用$分隔', "desc": "get cn a proxy"},
     {"url": "/pop", "params": "", "desc": "get and delete a proxy"},
     {"url": "/delete", "params": "proxy: 'e.g. 127.0.0.1:8080'", "desc": "delete an unable proxy"},
     {"url": "/all", "params": "type: ''https'|''", "desc": "get all proxy from proxy pool"},
@@ -62,6 +63,13 @@ def index():
 
 @app.route('/get/')
 def get():
+    https = request.args.get("type", "").lower() == 'https'
+    proxy = proxy_handler.get(https)
+    return proxy.to_dict if proxy else {"code": 0, "src": "no proxy"}
+
+
+@app.route('/get_cn/')
+def get_cn():
     https = request.args.get("type", "").lower()
     nations = request.args.get("nation", "").upper().split('$')
     nation_codes = request.args.get("nation_code", "").upper().split('$')
@@ -80,7 +88,6 @@ def get():
 
     proxy = choice(filtered_proxies) if filtered_proxies else None
     return proxy.to_dict if proxy else {"code": 0, "src": "no proxy"}
-    # return proxy.to_dict if proxy else {"code": 0, "src": "no proxy"}
 
 
 @app.route('/pop/')
