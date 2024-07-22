@@ -73,7 +73,7 @@ def get_cn():
     https = request.args.get("type", "").lower()
     nations = request.args.get("nation", "").upper().split('$')
     nation_codes = request.args.get("nation_code", "").upper().split('$')
-    provinces = request.args.get("province", "").split('$')
+    provinces = request.args.get("province", "上海$湖南$四川$浙江$福建$广东$重庆$天津$江苏").split('$')
     cities = request.args.get("city", "").split('$')
     proxys = proxy_handler.getAll(https)
 
