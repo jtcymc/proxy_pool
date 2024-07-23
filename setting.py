@@ -37,7 +37,7 @@ PORT = 5010
 # example:
 #      Redis: redis://:password@ip:port/db
 #      Ssdb:  ssdb://:password@ip:port
-DB_CONN = 'redis://:nfCDzQzSPRGUz8AVbOfzJZiL6aOaLHxt@redis-19728.c299.asia-northeast1-1.gce.redns.redis-cloud.com:19728/0'
+DB_CONN = 'redis://:password@ip:port/db'
 
 # proxy table name
 TABLE_NAME = 'use_proxy'
