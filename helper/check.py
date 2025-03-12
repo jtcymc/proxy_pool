@@ -14,6 +14,9 @@
 """
 __author__ = 'JHao'
 
+import random
+from time import sleep
+
 from helper.proxy import Region
 from util.six import Empty
 from threading import Thread
@@ -53,6 +56,8 @@ class DoValidator(object):
             if work_type == "raw":
                 nation, nation_code, province, city = cls.regionGetter(proxy)
                 proxy.region = Region(nation=nation, nation_code=nation_code, province=province, city=city)
+                delay = random.uniform(1, 3)
+                sleep(delay)
         else:
             proxy.fail_count += 1
         return proxy
@@ -83,7 +88,7 @@ class DoValidator(object):
         try:
             url = 'https://api.mir6.com/api/ip_json?ip=%s' % proxy.proxy.split(':')[0]
             r = WebRequest().get(url=url, retry_time=1, timeout=2).json
-            if  r['code'] == 200:
+            if r['code'] == 200:
                 location_data = r['data']
                 return location_data['country'], location_data['countryCode'], location_data['province'], location_data[
                     'city']

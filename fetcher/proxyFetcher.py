@@ -12,6 +12,7 @@
 """
 __author__ = 'JHao'
 
+import random
 import re
 import json
 from time import sleep
@@ -175,7 +176,7 @@ class ProxyFetcher(object):
         """ 免费代理 https://proxy.scdn.io/ """
         try:
             page = 1
-            total =2
+            total = 2
             while page <= total:
                 r = WebRequest().get(
                     f"https://proxy.scdn.io/api/proxy_list.php?page={page}&per_page=100&type=HTTP&country=%E4%B8%AD%E5%9B%BD",
@@ -183,11 +184,12 @@ class ProxyFetcher(object):
                 if r.response.status_code == 200:
                     data = r.json['data']
                     page += 1
-                    if page ==1:
+                    if page == 1:
                         total = data['pagination']['total_pages']
                     for each in data['proxies']:
                         yield each['ip'] + ':' + str(each['port'])
-                    sleep(1)
+                    delay = random.uniform(1, 3)
+                    sleep(delay)
                 else:
                     break
         except Exception as e:
