@@ -81,14 +81,17 @@ class DoValidator(object):
     @classmethod
     def regionGetter(cls, proxy):
         try:
-            url = 'https://webapi-pc.meitu.com/common/ip_location?ip=%s' % proxy.proxy.split(':')[0]
+            url = 'https://api.mir6.com/api/ip_json?ip=%s' % proxy.proxy.split(':')[0]
             r = WebRequest().get(url=url, retry_time=1, timeout=2).json
-            ip_address = list(r['data'].keys())[0]
-            location_data = r['data'][ip_address]
-            return location_data['nation'], location_data['nation_code'], location_data['province'], location_data[
-                'city'],
-        except:
-            return 'error'
+            if  r['code'] == 200:
+                location_data = r['data']
+                return location_data['country'], location_data['countryCode'], location_data['province'], location_data[
+                    'city']
+            # ip_address = list(r['data'].keys())[0]
+            else:
+                raise Exception("regionGetter error")
+        except Exception as e:
+            raise e
 
 
 class _ThreadChecker(Thread):

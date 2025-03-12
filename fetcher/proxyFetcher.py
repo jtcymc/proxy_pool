@@ -170,6 +170,29 @@ class ProxyFetcher(object):
         except Exception as e:
             print(e)
 
+    @staticmethod
+    def freeProxy12():
+        """ 免费代理 https://proxy.scdn.io/ """
+        try:
+            page = 1
+            total =2
+            while page <= total:
+                r = WebRequest().get(
+                    f"https://proxy.scdn.io/api/proxy_list.php?page={page}&per_page=100&type=HTTP&country=%E4%B8%AD%E5%9B%BD",
+                    timeout=10)
+                if r.response.status_code == 200:
+                    data = r.json['data']
+                    page += 1
+                    if page ==1:
+                        total = data['pagination']['total_pages']
+                    for each in data['proxies']:
+                        yield each['ip'] + ':' + str(each['port'])
+                    sleep(1)
+                else:
+                    break
+        except Exception as e:
+            print(e)
+
     # @staticmethod
     # def wallProxy01():
     #     """
